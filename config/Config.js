@@ -7,7 +7,7 @@ module.exports = {
     name : 'GS1',
 
     // 监听的端口号
-    port : 8900,
+    port : 8081,
 
     // telnet 的端口号
     telnetPort : 5001,
@@ -17,10 +17,10 @@ module.exports = {
 
     // mysql 配置(前缀必须为 mysqlDb)
     mysqlDb : {
-        host : '127.0.0.1',
-        port: 3306,
+        host : '587b43233ccae.gz.cdb.myqcloud.com',
+        port: 7808,
         database : 'landlord',
-        user : 'root',
-        password : 'abc123',
+        user : 'cdb_outerroot',
+        password : 'justtest2017',
     },
 }
