@@ -4,7 +4,10 @@ var Desk = require('../model/Desk.js'),
 //游戏分桌管理器
 var DeskMgr = function (){
 	this.desks = {};
-	this.currentNo = 0;
+	this.currentNo = 2;
+	this.desks['tb1'] = new Desk('tb1');
+	this.desks['tb2'] = new Desk('tb2');
+	this.desks['tb3'] = new Desk('tb3');
 };
 
 //加入新玩家并分配桌号,并设置玩家的桌号和座位号
@@ -87,6 +90,17 @@ DeskMgr.prototype.getPlayerBySocketId = function(id){
  * @return {String}        下一个座位号
  */
 DeskMgr.prototype.nextSeatNo = function(seatNo){
+	 var seat = seatNo.substr(1,1)
+	 if (seat<100){
+	 	seat++
+	 } else {
+	 	seat = 1
+	 }
+	 seat = "p"+seat
+	 console.log("nextSeatNo",seatNo,seat)
+	 return seat
+
+	/*
 	if(seatNo === 'p1'){
 		return 'p2';
 	} else if(seatNo === 'p2'){
@@ -94,10 +108,13 @@ DeskMgr.prototype.nextSeatNo = function(seatNo){
 	} else {
 		return 'p1';
 	}
+	*/
+	
+
 };
 
 DeskMgr.prototype.deleteDesk = function(deskNo){
-    delete this.desks[deskNo];
+    //delete this.desks[deskNo];
 };
 
 //返回当前总桌数
@@ -111,4 +128,102 @@ DeskMgr.prototype.size = function (){
 	}
 	return total;
 };
+DeskMgr.prototype.info = function (){
+
+	return this;
+};
+
+
+//玩家加入指定桌号
+DeskMgr.prototype.playerJoinRoom = function (rid,player){
+	var self = this;
+	//if(self.size() === 0){//没有任何桌位
+	//	self.create(player);
+	//} else {//有桌位，进行匹配
+		//先看是否存在于离线列表中
+		var target = offline.find(player.uid);
+		if(target){
+			player.deskNo = target.deskNo;
+			player.seatNo = target.seatNo;
+			self.desks[player.deskNo].seats[player.seatNo].status = util.PLAYER_STATUS_NORMAL;
+			/*
+            if(self.desks[player.deskNo].seats[player.seatNo].timer){
+                clearTimeout(self.desks[player.deskNo].seats[player.seatNo].timer);
+                self.desks[player.deskNo].seats[player.seatNo].timer = null;
+            }
+            */
+            
+            if(self.desks[player.deskNo].timer){
+                console.log(" timer existed")
+            } else {
+            	console.log("start timer")
+            	self.desks[player.deskNo].timer =setInterval(function(){
+					self.desks[player.deskNo].clock();		
+				}, 1000);
+            }
+
+
+			offline.remove(player.uid);
+			return;
+		}
+		/*
+		//寻找当前是否有空位
+		for (var tb in self.desks) {
+			if(self.desks[tb].size() < 20){
+				for (var p in self.desks[tb].seats) {
+					if(!self.desks[tb].seats[p]){
+						self.desks[tb].seats[p] = player;
+						player.seatNo = p;
+						break;
+					}
+				}
+				player.deskNo = self.desks[tb].deskNo;
+				break;
+			}
+		}
+		if(!player.deskNo){//没有找到需要开新的桌位
+			self.create(player);
+		}
+		*/
+		var tb=rid;
+		if(self.desks[tb].size() < 100){
+			for (var p in self.desks[tb].seats) {
+				if(!self.desks[tb].seats[p]){
+					self.desks[tb].seats[p] = player;
+					player.seatNo = p;
+					break;
+				}
+			}
+			player.deskNo = self.desks[tb].deskNo;
+			//break;
+		}	
+        if(self.desks[player.deskNo].timer){
+            console.log(" timer existed2")
+        } else {
+        	console.log("start timer2")
+        	self.desks[player.deskNo].timer =setInterval(function(){
+				self.desks[player.deskNo].clock();		
+			}, 1000);
+        }
+
+	//}
+};
+
+DeskMgr.prototype.getInfoFromDesk = function (){
+	var self =this;
+	var result = []
+	for (var tb in self.desks) {
+			
+				for (var i = 0; i < self.desks[tb].info.length; i++) {
+					result.push(self.desks[tb].info[i])
+				}
+				self.desks[tb].info =[]
+
+		
+			
+	}
+	return result
+
+}
+
 module.exports = DeskMgr;

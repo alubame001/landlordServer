@@ -29,6 +29,10 @@ var Desk = function(no){
     };
     //当前状态 1： 等待准备 2：抢地主 3:出牌
     this.status = 1;
+    this.timer= null;
+    this.interval_time = 10; //多少秒开一次奖
+    this.time = this.interval_time
+    this.info =[]
 };
 
 /**
@@ -240,4 +244,40 @@ Desk.prototype.copySeats = function (){
     }
     return dest;
 };
+Desk.prototype.clock = function (){
+    var self = this;
+    if (self.time>0){
+        if (self.time==4){
+            var result= {}
+            result.kind ="counter"
+            result.deskNo = self.deskNo
+            result.time = self.time-1
+             this.info.push(result)
+              console.log(this.info)
+        }
+        self.time = self.time -1
+    } else {
+        self.time= self.interval_time
+        var rand =  Math.random();
+        var deviation = Math.floor(rand * 1000 );    
+        var result= {}
+        result.kind ="luckyNumber"
+        result.deskNo = self.deskNo
+        result.luckyNumber = rand
+        var randNumMin = 0;
+        var randNumMax = 23;
+        var randInt = (Math.floor(Math.random() * (randNumMax - randNumMin + 1)) + randNumMin);
+        result.fruit = randInt
+
+
+        this.info.push(result)
+        console.log(this.info)
+
+
+
+    }
+    console.log(self.deskNo,":",self.time)
+
+};
+
 module.exports = Desk;

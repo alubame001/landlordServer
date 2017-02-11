@@ -20,6 +20,10 @@ server.listen(8081, function() {
 });
 
 var handler = {
+	queryDeskMgr:function(data,socket){
+		console.log("queryDeskMgr",deskMgr.info())
+		socket.emit('queryDeskMgrResult', deskMgr.info());
+	},
 	someOneExit: function(player, socket){
 		var self = this,
 			deskNo = player ? player.deskNo : null;
@@ -265,4 +269,46 @@ io.sockets.on('connection', function(socket) {
 	socket.on('exitGame', function(data) {
 		handler.someOneExit(data, socket);
 	});
+	//玩家退出游戏
+	socket.on('queryDeskMgr', function(data) {
+		handler.queryDeskMgr(data, socket);
+	});
+
+	//玩家加入指定房间
+	socket.on('joinRoom', function(data) {
+		console.log('player joinRoom',data)
+		playerScoreDao.queryByUid(data.uid).then(function(r){
+			console.info(r[0].player_name, ' --正在加入房间:',data.rid);
+			var player = new Player(r[0].player_name, socket.id, r[0].uid);
+			player.score = r[0].score;
+			deskMgr.playerJoinRoom(data.rid,player);
+			socket.join(player.deskNo);
+			var seats = deskMgr.deskInfo(player);
+			var resultData = { 'ownSeatNo': player.seatNo};
+			//是断线重连需要返回底牌信息
+			if(deskMgr.desks[player.deskNo].status === util.DESK_STATUS_PLAY){
+				resultData.desk = deskMgr.desks[player.deskNo];
+				//给该桌其它玩家广播信息
+				socket.broadcast.to(player.deskNo).emit('playerBack', deskMgr.desks[player.deskNo].seats[player.seatNo]);
+			} else {
+				resultData.seats = deskMgr.desks[player.deskNo].seats;
+				//给该桌其它玩家广播信息
+				socket.broadcast.to(player.deskNo).emit('deskUpdate', deskMgr.desks[player.deskNo].seats);
+			}
+			//给玩家桌位信息
+			console.info(r[0].player_name, ' --已经加入房间:',data.rid);
+			socket.emit('joinRoomResult', resultData);
+		});
+	});
 });
+
+setInterval(function(){
+
+	var result =deskMgr.getInfoFromDesk();
+	for (var i = 0; i < result.length; i++) {
+			
+			io.sockets.in(result[i].deskNo).emit(result[i].kind, result[i]);
+
+
+		}	
+}, 500);
