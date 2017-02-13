@@ -247,7 +247,7 @@ Desk.prototype.copySeats = function (){
 Desk.prototype.clock = function (){
     var self = this;
     if (self.time>0){
-        if (self.time==4){
+        if (self.time==6){
             var result= {}
             result.kind ="counter"
             result.deskNo = self.deskNo
