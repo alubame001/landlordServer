@@ -265,7 +265,7 @@ Desk.prototype.clock = function (){
         result.deskNo = self.deskNo
         result.luckyNumber = rand
         var randNumMin = 0;
-        var randNumMax = 23;
+        var randNumMax = 24;
         var randInt = (Math.floor(Math.random() * (randNumMax - randNumMin + 1)) + randNumMin);
         result.fruit = randInt
 

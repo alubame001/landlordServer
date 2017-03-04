@@ -17,10 +17,22 @@ module.exports = {
 
     // mysql 配置(前缀必须为 mysqlDb)
     mysqlDb : {
-        host : '587b43233ccae.gz.cdb.myqcloud.com',
-        port: 7808,
+        host : '58ba6bbc4c9ae.gz.cdb.myqcloud.com',
+        port: 15333,
         database : 'landlord',
         user : 'cdb_outerroot',
         password : 'justtest2017',
     },
 }
+/*
+https://console.qcloud.com/cdb
+初始化:设定密码
+
+https://gz-dmc.qcloud.com/
+建立landlord资料库
+用/sql/player_score.sql 建立table
+
+https://console.qcloud.com/cdb
+外网地址:开启
+然後收站内信，就会有上面参数需要的讯息
+*/
